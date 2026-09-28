@@ -1,24 +1,25 @@
 #include "esp_log.h"
-#include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
-#include "driver/gpio.h"
 #include "Led.h"
+#include "Queue.h"
+#include "Message.h"
+#include "LedControllerTask.h"
+#include "LedTriggerTask.h"
 
 extern "C" {
   void app_main() {
     Led onBoardLed(GPIO_NUM_8);
-    static const char* TAG = "main";
 
-    vTaskDelay(pdMS_TO_TICKS(2000));
+    static Queue<LedMessage> ledCommandQueue(5);
 
-    ESP_LOGI(TAG, "Hello, World!");
+    if(!ledCommandQueue.isValid()) {
+      ESP_LOGE("main", "Failed to create queue - halting startup");
+      return;
+    }
 
-    onBoardLed.turnOn();
-    vTaskDelay(pdMS_TO_TICKS(2000));
+    static LedTriggerTask trigger(ledCommandQueue, pdMS_TO_TICKS(3000));
+    static LedControllerTask controller(ledCommandQueue, onBoardLed);
 
-    onBoardLed.turnOff();
-    vTaskDelay(pdMS_TO_TICKS(2000));
-
-    onBoardLed.turnOn();
+    trigger.start("LedTrigger", 4096, tskIDLE_PRIORITY + 1);
+    controller.start("LedController", 4096, tskIDLE_PRIORITY + 1);
   }
 }
