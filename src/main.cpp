@@ -2,29 +2,23 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "driver/gpio.h"
+#include "Led.h"
 
 extern "C" {
   void app_main() {
+    Led onBoardLed(GPIO_NUM_8);
     static const char* TAG = "main";
 
     vTaskDelay(pdMS_TO_TICKS(2000));
 
     ESP_LOGI(TAG, "Hello, World!");
 
-    gpio_config_t io_conf = {
-      .pin_bit_mask = 1ULL << GPIO_NUM_8,
-      .mode = GPIO_MODE_OUTPUT,
-      .pull_up_en = GPIO_PULLUP_DISABLE,
-      .pull_down_en = GPIO_PULLDOWN_DISABLE,
-      .intr_type = GPIO_INTR_DISABLE,
-    };
-    gpio_config(&io_conf);
-
-    
-    gpio_set_level(GPIO_NUM_8, 0);
+    onBoardLed.turnOn();
     vTaskDelay(pdMS_TO_TICKS(2000));
 
-    gpio_set_level(GPIO_NUM_8, 1);
+    onBoardLed.turnOff();
     vTaskDelay(pdMS_TO_TICKS(2000));
+
+    onBoardLed.turnOn();
   }
 }
