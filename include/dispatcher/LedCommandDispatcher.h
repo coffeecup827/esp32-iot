@@ -2,7 +2,7 @@
 #include "cstdint"
 #include "IDispatcher.h"
 #include "messages/LedMessage.h"
-#include "../tasks/Queue.h"
+#include "tasks/Queue.h"
 
 class LedCommandDispatcher : public IDispatcher<LedBluetoothCommand> {
 

@@ -1,9 +1,9 @@
 #pragma once
 #include <vector>
 #include "Queue.h"
-#include "../messages/LedMessage.h"
+#include "messages/LedMessage.h"
 #include "ITask.h"
-#include "../led/Led.h"
+#include "led/Led.h"
 #include "ILedStateObserver.h"
 
 class LedConsumerTask : public ITask {
@@ -11,6 +11,8 @@ class LedConsumerTask : public ITask {
   private:
     Queue<LedMessage>& ledCommandQueue;
     Led& ledDriver;
+
+    // why * here and not &
     std::vector<ILedStateObserver*> observers;
 
   protected:
