@@ -10,4 +10,9 @@ class Led : public ILed {
     Led(gpio_num_t pin);
     void turnOn() override;
     void turnOff() override;
+    bool isOn() const override;
+
+    void setState(bool newState) {
+      this->state = newState;
+    }
 };
