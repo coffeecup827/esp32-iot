@@ -1,8 +1,8 @@
 #pragma once
 #include "Queue.h"
-#include "Message.h"
+#include "../messages/Message.h"
 #include "ITask.h"
-#include "Led.h"
+#include "../led/Led.h"
 
 class LedControllerTask : public ITask {
 

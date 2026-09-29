@@ -1,9 +1,9 @@
 #include "esp_log.h"
-#include "Led.h"
-#include "Queue.h"
-#include "Message.h"
-#include "LedControllerTask.h"
-#include "LedTriggerTask.h"
+#include "led/Led.h"
+#include "tasks/Queue.h"
+#include "messages/Message.h"
+#include "tasks/LedControllerTask.h"
+#include "tasks/LedTriggerTask.h"
 
 extern "C" {
   void app_main() {
