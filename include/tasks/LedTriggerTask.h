@@ -1,6 +1,6 @@
 #pragma once
 #include "Queue.h"
-#include "../messages/Message.h"
+#include "../messages/LedMessage.h"
 #include "ITask.h"
 
 class LedTriggerTask : public ITask {

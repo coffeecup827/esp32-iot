@@ -1,7 +1,7 @@
 #include "esp_log.h"
 #include "led/Led.h"
 #include "tasks/Queue.h"
-#include "messages/Message.h"
+#include "messages/LedMessage.h"
 #include "tasks/LedControllerTask.h"
 #include "tasks/LedTriggerTask.h"
 
