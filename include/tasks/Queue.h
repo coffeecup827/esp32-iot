@@ -18,12 +18,12 @@ template <typename T> class Queue {
       }
     }
 
-    bool send(const T& item, TickType_t tickstoWait) { // conceptually appends to the queue
-      return xQueueSend(handle, &item, tickstoWait) == pdTRUE;
+    bool send(const T& item, TickType_t messageTTL) { // conceptually appends to the queue
+      return xQueueSend(handle, &item, messageTTL) == pdTRUE;
     }
 
-    bool receive(T& outItem, TickType_t ticksToWait) { // conceptually pooutItemsps the queue
-      return xQueueReceive(handle, &outItem, ticksToWait) == pdTRUE;
+    bool receive(T& outItem, TickType_t messageTTL) { // conceptually pooutItemsps the queue
+      return xQueueReceive(handle, &outItem, messageTTL) == pdTRUE;
     }
 
     [[nodiscard]]

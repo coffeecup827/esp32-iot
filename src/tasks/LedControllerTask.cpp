@@ -14,12 +14,13 @@ void LedControllerTask::run() {
     LedMessage msg{};
     while (true) {
         if (inQueue.receive(msg, portMAX_DELAY)) {
+          if(msg.bluetoothCommand == LedBluetoothCommand::TURN_ON) {
             ledDriver.turnOn();
-            vTaskDelay(pdMS_TO_TICKS(1000));
+          } else {
             ledDriver.turnOff();
-            vTaskDelay(pdMS_TO_TICKS(1000));
-            ESP_LOGI(TAG, "Toggled LED for message #%lu",
-                     static_cast<unsigned long>(msg.sequenceNumber));
+          }
+          ESP_LOGI(TAG, "Toggled LED for message #%lu", 
+            static_cast<unsigned long>(msg.sequenceNumber));
         }
     }
 }

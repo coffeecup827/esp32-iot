@@ -3,7 +3,7 @@
 #include "tasks/Queue.h"
 #include "messages/LedMessage.h"
 #include "tasks/LedControllerTask.h"
-#include "tasks/LedTriggerTask.h"
+#include "tasks/LedBlinkPublisherTask.h"
 
 extern "C" {
   void app_main() {
@@ -16,7 +16,7 @@ extern "C" {
       return;
     }
 
-    static LedTriggerTask trigger(ledCommandQueue, pdMS_TO_TICKS(3000));
+    static LedBlinkPublisherTask trigger(ledCommandQueue, pdMS_TO_TICKS(500));
     static LedControllerTask controller(ledCommandQueue, onBoardLed);
 
     trigger.start("LedTrigger", 4096, tskIDLE_PRIORITY + 1);
