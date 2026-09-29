@@ -10,6 +10,10 @@ LedConsumerTask::LedConsumerTask(Queue<LedMessage>& ledCommandQueue, Led& ledDri
     //empty constructor
   };
 
+void LedConsumerTask::addObserver(ILedStateObserver* observer) {
+  observers.push_back(observer);
+}
+
 void LedConsumerTask::run() {
     LedMessage msg{};
     while (true) {
@@ -19,6 +23,11 @@ void LedConsumerTask::run() {
           } else {
             ledDriver.turnOff();
           }
+
+          for(ILedStateObserver* observer: observers) {
+            observer->onLedStateChanged(ledDriver.isOn());
+          }
+
           ESP_LOGI(TAG, "Toggled LED for message #%lu", 
             static_cast<unsigned long>(msg.sequenceNumber));
         }
