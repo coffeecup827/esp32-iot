@@ -7,12 +7,12 @@
 class LedControllerTask : public ITask {
 
   private:
-    Queue<LedMessage>& inQueue;
-    Led ledDriver;
+    Queue<LedMessage>& ledCommandQueue;
+    Led& ledDriver;
 
   protected:
     void run() override;
 
   public:
-    LedControllerTask(Queue<LedMessage>& outQueue, Led ledDriver);
+    LedControllerTask(Queue<LedMessage>& ledCommandQueue, Led& ledDriver);
 };

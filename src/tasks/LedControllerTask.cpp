@@ -5,15 +5,15 @@ namespace {
   constexpr const char* TAG = "LedController";
 }
 
-LedControllerTask::LedControllerTask(Queue<LedMessage>& inQueue, Led ledDriver) 
-  : inQueue(inQueue), ledDriver(ledDriver) {
+LedControllerTask::LedControllerTask(Queue<LedMessage>& ledCommandQueue, Led& ledDriver) 
+  : ledCommandQueue(ledCommandQueue), ledDriver(ledDriver) {
     //empty constructor
   };
 
 void LedControllerTask::run() {
     LedMessage msg{};
     while (true) {
-        if (inQueue.receive(msg, portMAX_DELAY)) {
+        if (ledCommandQueue.receive(msg, portMAX_DELAY)) {
           if(msg.bluetoothCommand == LedBluetoothCommand::TURN_ON) {
             ledDriver.turnOn();
           } else {
