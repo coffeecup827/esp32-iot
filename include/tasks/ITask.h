@@ -4,6 +4,7 @@
 class ITask {
 
   private:
+    // need explanation for this method
     static void taskEntryPoint(void* pvParameters) {
       static_cast<ITask*>(pvParameters)->run();
     }
@@ -14,7 +15,8 @@ class ITask {
   public:
     virtual ~ITask() = default;
 
-    void start(const char* name, uint32_t stackSize, UBaseType_t priority) {
-      xTaskCreate(taskEntryPoint, name, stackSize, this, priority, nullptr);
+    bool start(const char* name, uint32_t stackSize, UBaseType_t priority) {
+      BaseType_t result = xTaskCreate(taskEntryPoint, name, stackSize, this, priority, nullptr);
+      return result == pdPASS;
     }
 };
