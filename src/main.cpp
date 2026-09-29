@@ -2,7 +2,7 @@
 #include "led/Led.h"
 #include "tasks/Queue.h"
 #include "messages/LedMessage.h"
-#include "tasks/LedControllerTask.h"
+#include "tasks/LedConsumerTask.h"
 #include "tasks/LedBlinkPublisherTask.h"
 
 extern "C" {
@@ -16,10 +16,10 @@ extern "C" {
       return;
     }
 
-    static LedBlinkPublisherTask trigger(ledCommandQueue, pdMS_TO_TICKS(5000));
-    static LedControllerTask controller(ledCommandQueue, onBoardLed);
+    static LedBlinkPublisherTask blinkPublisher(ledCommandQueue, pdMS_TO_TICKS(500));
+    static LedConsumerTask ledConsumer(ledCommandQueue, onBoardLed);
 
-    trigger.start("LedTrigger", 4096, tskIDLE_PRIORITY + 1);
-    controller.start("LedController", 4096, tskIDLE_PRIORITY + 1);
+    blinkPublisher.start("LedTrigger", 4096, tskIDLE_PRIORITY + 1);
+    ledConsumer.start("LedController", 4096, tskIDLE_PRIORITY + 1);
   }
 }

@@ -2,7 +2,7 @@
 #include "esp_log.h"
 
 namespace {
-  constexpr const char* TAG = "LedPublisher";
+  constexpr const char* TAG = "LedBlinkPublisher";
 }
 
 LedBlinkPublisherTask::LedBlinkPublisherTask(Queue<LedMessage>& queue, TickType_t blinkDelay) 

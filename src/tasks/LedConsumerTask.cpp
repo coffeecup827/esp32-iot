@@ -1,16 +1,16 @@
-#include "tasks/LedControllerTask.h"
+#include "tasks/LedConsumerTask.h"
 #include "esp_log.h"
 
 namespace {
-  constexpr const char* TAG = "LedController";
+  constexpr const char* TAG = "LedConsumer";
 }
 
-LedControllerTask::LedControllerTask(Queue<LedMessage>& ledCommandQueue, Led& ledDriver) 
+LedConsumerTask::LedConsumerTask(Queue<LedMessage>& ledCommandQueue, Led& ledDriver) 
   : ledCommandQueue(ledCommandQueue), ledDriver(ledDriver) {
     //empty constructor
   };
 
-void LedControllerTask::run() {
+void LedConsumerTask::run() {
     LedMessage msg{};
     while (true) {
         if (ledCommandQueue.receive(msg, portMAX_DELAY)) {

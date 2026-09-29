@@ -4,7 +4,7 @@
 #include "ITask.h"
 #include "../led/Led.h"
 
-class LedControllerTask : public ITask {
+class LedConsumerTask : public ITask {
 
   private:
     Queue<LedMessage>& ledCommandQueue;
@@ -14,5 +14,5 @@ class LedControllerTask : public ITask {
     void run() override;
 
   public:
-    LedControllerTask(Queue<LedMessage>& ledCommandQueue, Led& ledDriver);
+    LedConsumerTask(Queue<LedMessage>& ledCommandQueue, Led& ledDriver);
 };
