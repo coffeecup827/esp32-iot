@@ -1,4 +1,5 @@
 #include "esp_log.h"
+#include <vector>
 #include "led/Led.h"
 #include "tasks/Queue.h"
 #include "messages/LedMessage.h"
@@ -6,7 +7,8 @@
 #include "nvs_flash.h"
 #include "dispatcher/LedCommandDispatcher.h"
 #include "ble/BluetoothDeviceIdentity.h"
-#include "ble/BluetoothLedPeripheral.h"
+#include "ble/BluetoothPeripheral.h"
+#include "ble/LedBluetoothService.h"
 
 namespace {
   constexpr const char* TAG = "Main";
@@ -30,12 +32,18 @@ extern "C" {
 
     static LedConsumerTask ledConsumer(ledCommandQueue, onBoardLed);
     static LedCommandDispatcher ledCommandDispatcher(ledCommandQueue);
+
+    static LedBluetoothService ledBluetoothService(ledCommandDispatcher);
+
+    std::vector<IBluetoothService*> bleServices;
+    bleServices.push_back(&ledBluetoothService);
+
     static BluetoothDeviceIdentity bluetoothDeviceIdentity;
-    static BluetoothLedPeripheral bluetoothLedPeripheral(bluetoothDeviceIdentity, ledCommandDispatcher);
+    static BluetoothPeripheral bluetoothPeripheral(bluetoothDeviceIdentity, bleServices);
 
-    ledConsumer.addObserver(&bluetoothLedPeripheral);
+    ledConsumer.addObserver(&ledBluetoothService);
 
-    bluetoothLedPeripheral.setConnectionStateHandler([](BluetoothConnectionState state) {
+    bluetoothPeripheral.setConnectionStateHandler([](BluetoothConnectionState state) {
       switch (state) {
           case BluetoothConnectionState::ADVERTISING: ESP_LOGI(TAG, "BLE Advertising"); break;
           case BluetoothConnectionState::CONNECTED_UNENCRYPTED: ESP_LOGI(TAG, "BLE Connected (unencrypted)"); break;
@@ -47,7 +55,7 @@ extern "C" {
 
     ledConsumer.start("LedController", 4096, tskIDLE_PRIORITY + 1);
 
-    if(!bluetoothLedPeripheral.start()) {
+    if(!bluetoothPeripheral.start()) {
       ESP_LOGE(TAG, "BLE failed to start (continuing without BLE)");
     }
 

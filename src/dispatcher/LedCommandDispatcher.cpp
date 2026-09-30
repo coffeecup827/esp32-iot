@@ -7,7 +7,7 @@ LedCommandDispatcher::LedCommandDispatcher(Queue<LedMessage>& queue)
 bool LedCommandDispatcher::dispatch(LedBluetoothCommand& command) {
 
   LedMessage message {
-    .sequenceNumber = sequenceNumber,
+    .sequenceNumber = sequenceNumber++,
     .bluetoothCommand = command,
   };
 
