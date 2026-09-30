@@ -7,7 +7,7 @@ namespace {
   constexpr const char* LED_STATUS_UUID = "303e4d0a-820b-439b-9db4-83a1a63bd0a6";
 }
 
-LedBluetoothService::LedBluetoothService(LedCommandDispatcher& ledCommandDispatcher)
+LedBluetoothService::LedBluetoothService(IDispatcher<LedBluetoothCommand>& ledCommandDispatcher)
   : ledCommandDispatcher(ledCommandDispatcher) {
 }
 
