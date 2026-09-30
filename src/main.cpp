@@ -15,7 +15,7 @@ namespace {
 extern "C" {
   void app_main() {
     esp_err_t nvsInitResult = nvs_flash_init();
-    if(nvsInitResult != ESP_ERR_NVS_NO_FREE_PAGES || nvsInitResult == ESP_ERR_NVS_NEW_VERSION_FOUND) {
+    if(nvsInitResult == ESP_ERR_NVS_NO_FREE_PAGES || nvsInitResult == ESP_ERR_NVS_NEW_VERSION_FOUND) {
       ESP_ERROR_CHECK(nvs_flash_erase());
       nvsInitResult = nvs_flash_init();
     }

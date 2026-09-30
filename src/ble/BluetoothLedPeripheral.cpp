@@ -58,19 +58,20 @@ bool BluetoothLedPeripheral::start() {
   if(!ledBLEService) return false;
 
   ledCommandCharacteristic = ledBLEService->createCharacteristic(
-    LED_COMMAND_UUID, NIMBLE_PROPERTY::WRITE_ENC
+    LED_COMMAND_UUID, 
+    NIMBLE_PROPERTY::WRITE, NIMBLE_PROPERTY::WRITE_ENC
   );
   ledStatusCharacteristic = ledBLEService->createCharacteristic(
     LED_STATUS_UUID,
-    NIMBLE_PROPERTY::READ_ENC | NIMBLE_PROPERTY::NOTIFY
+    NIMBLE_PROPERTY::READ, NIMBLE_PROPERTY::READ_ENC | NIMBLE_PROPERTY::NOTIFY
   );
   deviceNameCharacteristic = ledBLEService->createCharacteristic(
     DEVICE_NAME_UUID,
-    NIMBLE_PROPERTY::WRITE_ENC | NIMBLE_PROPERTY::READ
+    NIMBLE_PROPERTY::WRITE, NIMBLE_PROPERTY::WRITE_ENC | NIMBLE_PROPERTY::READ | NIMBLE_PROPERTY::READ_ENC
   );
   deviceIdCharacteristic = ledBLEService->createCharacteristic(
     DEVICE_ID_UUID,
-    NIMBLE_PROPERTY::READ_ENC
+    NIMBLE_PROPERTY::READ, NIMBLE_PROPERTY::READ_ENC
   );
 
   if(!ledCommandCharacteristic || !ledStatusCharacteristic ||
