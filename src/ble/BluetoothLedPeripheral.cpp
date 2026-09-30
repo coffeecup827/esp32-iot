@@ -139,18 +139,16 @@ void BluetoothLedPeripheral::onWrite(NimBLECharacteristic* characteristic, NimBL
 
   if(characteristic == deviceNameCharacteristic) {
     const std::string newName = characteristic->getValue();
-    if (!deviceIdentity.setDeviceName(newName)) {
-      // why do change value on characteristic when renaming failed?
+    if (deviceIdentity.setDeviceName(newName)) {
       deviceNameCharacteristic->setValue(deviceIdentity.getDeviceName());
+    } else {
+      ESP_LOGE(TAG, "BLE Device Rename Failed");
     }
   }
 }
 
 void BluetoothLedPeripheral::onRead(NimBLECharacteristic* characteristic, NimBLEConnInfo&) {
-  // why are we setting on read?
-  if(characteristic == deviceNameCharacteristic) {
-    characteristic->setValue(deviceIdentity.getDeviceName());
-  }
+
 }
 
 bool BluetoothLedPeripheral::isEncrypted() const {

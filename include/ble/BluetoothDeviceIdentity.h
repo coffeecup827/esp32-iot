@@ -8,15 +8,12 @@ class BluetoothDeviceIdentity : public IBluetoothDeviceIdentity {
     static constexpr const char* NVSNameSpace = "bluetooth";
     static constexpr const char* NVSDeviceNameKey = "device_name";
 
-    //why not string&
     std::string deviceId;
     std::string deviceName;
 
-    //why static
     static std::string deriveDeviceIdFromMac();
     static bool isValidName(const std::string& deviceName);
     std::string loadDisplayNameFromNvs() const;
-    //this method do update data, why const?
     bool saveDisplayNameToNvs(const std::string& deviceName) const;
 
   public:

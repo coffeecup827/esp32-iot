@@ -30,7 +30,6 @@ extern "C" {
 
     static LedConsumerTask ledConsumer(ledCommandQueue, onBoardLed);
     static LedCommandDispatcher ledCommandDispatcher(ledCommandQueue);
-    // why this initialisation is different?
     static BluetoothDeviceIdentity bluetoothDeviceIdentity;
     static BluetoothLedPeripheral bluetoothLedPeripheral(bluetoothDeviceIdentity, ledCommandDispatcher);
 

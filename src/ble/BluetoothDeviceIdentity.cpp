@@ -47,7 +47,6 @@ std::string BluetoothDeviceIdentity::loadDisplayNameFromNvs() const {
 
   size_t length = sizeof(deviceNameCharArray);
 
-  //why & for length?
   esp_err_t result = nvs_get_str(storageHandle, NVSDeviceNameKey, deviceNameCharArray, &length);
   nvs_close(storageHandle);
 
@@ -59,7 +58,7 @@ bool BluetoothDeviceIdentity::saveDisplayNameToNvs(const std::string& deviceName
 
   if(nvs_open(NVSNameSpace, NVS_READWRITE, &storageHandle) != ESP_OK) {
     ESP_LOGE(TAG, "nvs_open failed");
-    return "";
+    return false;
   }
 
   esp_err_t result = nvs_set_str(storageHandle, NVSDeviceNameKey, deviceName.c_str());
