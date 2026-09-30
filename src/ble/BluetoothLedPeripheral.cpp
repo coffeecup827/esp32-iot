@@ -5,15 +5,12 @@
 namespace {
   constexpr const char* TAG = "BluetoothLedPeripheral";
   constexpr const char* SERVICE_UUID = "303e4d0a-820b-439b-9db4-83a1a63bd0a4"; //correct
-  constexpr const char* LED_COMMAND_UUID = "303e4d0a-820b-439b-9db4-83a1a63bd0a5";
-  constexpr const char* LED_STATUS_UUID = "303e4d0a-820b-439b-9db4-83a1a63bd0a6";
   constexpr const char* DEVICE_ID_UUID = "303e4d0a-820b-439b-9db4-83a1a63bd0a7";
   constexpr const char* DEVICE_NAME_UUID = "303e4d0a-820b-439b-9db4-83a1a63bd0a8";
 }
 
-BluetoothLedPeripheral::BluetoothLedPeripheral(IBluetoothDeviceIdentity& deviceIdentity, LedCommandDispatcher& ledCommandDispatcher)
-  : deviceIdentity(deviceIdentity), ledCommandDispatcher(ledCommandDispatcher) {
-
+BluetoothLedPeripheral::BluetoothLedPeripheral(IBluetoothDeviceIdentity& deviceIdentity)
+  : deviceIdentity(deviceIdentity) {
 }
 
 void BluetoothLedPeripheral::setState(BluetoothConnectionState state) {
@@ -57,14 +54,6 @@ bool BluetoothLedPeripheral::start() {
   NimBLEService* ledBLEService = bleServer->createService(SERVICE_UUID);
   if(!ledBLEService) return false;
 
-  ledCommandCharacteristic = ledBLEService->createCharacteristic(
-    LED_COMMAND_UUID, 
-    NIMBLE_PROPERTY::WRITE | NIMBLE_PROPERTY::WRITE_ENC
-  );
-  ledStatusCharacteristic = ledBLEService->createCharacteristic(
-    LED_STATUS_UUID,
-    NIMBLE_PROPERTY::READ | NIMBLE_PROPERTY::READ_ENC | NIMBLE_PROPERTY::NOTIFY
-  );
   deviceNameCharacteristic = ledBLEService->createCharacteristic(
     DEVICE_NAME_UUID,
     NIMBLE_PROPERTY::WRITE | NIMBLE_PROPERTY::WRITE_ENC | NIMBLE_PROPERTY::READ | NIMBLE_PROPERTY::READ_ENC
@@ -74,15 +63,12 @@ bool BluetoothLedPeripheral::start() {
     NIMBLE_PROPERTY::READ | NIMBLE_PROPERTY::READ_ENC
   );
 
-  if(!ledCommandCharacteristic || !ledStatusCharacteristic ||
-   !deviceNameCharacteristic || !deviceIdCharacteristic) {
+  if(!deviceNameCharacteristic || !deviceIdCharacteristic) {
     return false;
   }
 
-  ledCommandCharacteristic->setCallbacks(this);
   deviceNameCharacteristic->setCallbacks(this);
 
-  ledStatusCharacteristic->setValue(static_cast<uint8_t>(0));
   deviceNameCharacteristic->setValue(deviceIdentity.getDeviceName());
   deviceIdCharacteristic->setValue(deviceIdentity.getDeviceId());
 
@@ -116,27 +102,6 @@ void BluetoothLedPeripheral::onDisconnect(NimBLEServer* bleServer, NimBLEConnInf
 }
 
 void BluetoothLedPeripheral::onWrite(NimBLECharacteristic* characteristic, NimBLEConnInfo&) {
-  if(characteristic == ledCommandCharacteristic) {
-    const std::string bleInput = characteristic->getValue();
-
-    if(bleInput.size() != 1) {
-      ESP_LOGE(TAG, "Invalid LED BLE Command");
-      return;
-    }
-
-    LedBluetoothCommand ledCommand {};
-    switch (static_cast<uint8_t>(bleInput[0])) {
-      case 0x00: ledCommand = LedBluetoothCommand::TURN_OFF; break;
-      case 0x01: ledCommand = LedBluetoothCommand::TURN_ON;  break;
-      default: return;
-    }
-
-    if(!ledCommandDispatcher.dispatch(ledCommand)) {
-      ESP_LOGE(TAG, "Failed To Dispatch LED BLE Command");
-      return;
-    }
-  }
-
   if(characteristic == deviceNameCharacteristic) {
     const std::string newName = characteristic->getValue();
     if (deviceIdentity.setDeviceName(newName)) {
@@ -153,18 +118,6 @@ void BluetoothLedPeripheral::onRead(NimBLECharacteristic* characteristic, NimBLE
 
 bool BluetoothLedPeripheral::isEncrypted() const {
   return isConnectionEncrypted;
-}
-
-void BluetoothLedPeripheral::notifyLedState(bool ledState) {
-  if(!ledStatusCharacteristic) {
-    return;
-  }
-  ledStatusCharacteristic->setValue(static_cast<uint8_t>(ledState ? 1 : 0));
-  ledStatusCharacteristic->notify();
-}
-
-void BluetoothLedPeripheral::onLedStateChanged(bool ledState) {
-  notifyLedState(ledState);
 }
 
 void BluetoothLedPeripheral::setConnectionStateHandler(ConnectionStateHandler handler) {

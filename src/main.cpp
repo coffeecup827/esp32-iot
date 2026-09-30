@@ -31,9 +31,9 @@ extern "C" {
     static LedConsumerTask ledConsumer(ledCommandQueue, onBoardLed);
     static LedCommandDispatcher ledCommandDispatcher(ledCommandQueue);
     static BluetoothDeviceIdentity bluetoothDeviceIdentity;
-    static BluetoothLedPeripheral bluetoothLedPeripheral(bluetoothDeviceIdentity, ledCommandDispatcher);
+    static BluetoothLedPeripheral bluetoothLedPeripheral(bluetoothDeviceIdentity);
 
-    ledConsumer.addObserver(&bluetoothLedPeripheral);
+    // ledConsumer.addObserver(&bluetoothLedPeripheral);
 
     bluetoothLedPeripheral.setConnectionStateHandler([](BluetoothConnectionState state) {
       switch (state) {
