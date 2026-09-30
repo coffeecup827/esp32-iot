@@ -95,7 +95,6 @@ void BluetoothPeripheral::onConnect(NimBLEServer* server, NimBLEConnInfo& bleCon
   }
   
   setState(BluetoothConnectionState::CONNECTED_UNENCRYPTED);
-  NimBLEDevice::startSecurity(bleConnectionInfo.getConnHandle());
 }
 
 void BluetoothPeripheral::onAuthenticationComplete(NimBLEConnInfo& bleConnectionInfo) {
