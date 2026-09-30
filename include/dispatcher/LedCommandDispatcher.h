@@ -7,7 +7,7 @@
 class LedCommandDispatcher : public IDispatcher<LedBluetoothCommand> {
 
   private:
-    std::uint32_t sequenceNumber;
+    std::uint32_t sequenceNumber {0};
     Queue<LedMessage>& ledCommandQueue;
 
   public:

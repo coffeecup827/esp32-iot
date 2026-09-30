@@ -64,7 +64,11 @@ bool BluetoothPeripheral::start() {
   );
 
   for(IBluetoothService* bluetoothService : bleServices) {
-    bluetoothService->registerWith(bleService);
+    bool result = bluetoothService->registerWith(bleService);
+    if(!result) {
+      ESP_LOGE(TAG, "Failed to Register Service");
+      return false;
+    }
   }
 
   if(!deviceNameCharacteristic || !deviceIdCharacteristic) {

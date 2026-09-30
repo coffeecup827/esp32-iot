@@ -1,10 +1,7 @@
-//have to decouple bluetooth and led separately i.e separate bluetooth connection and services.
 #pragma once
 #include "IBluetoothDeviceIdentity.h"
-#include "dispatcher/LedCommandDispatcher.h"
 #include "NimBLEDevice.h"
 #include "IBluetoothPeripheral.h"
-#include "tasks/ILedStateObserver.h"
 #include "IBluetoothService.h"
 
 class BluetoothPeripheral : public IBluetoothPeripheral,
