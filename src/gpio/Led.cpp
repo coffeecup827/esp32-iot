@@ -17,8 +17,14 @@ Led::Led(gpio_num_t pin) : pin(pin), state(false) {
 
 void Led::turnOff() {
   gpio_set_level(pin, 1);
+  setState(false);
 }
 
 void Led::turnOn() {
   gpio_set_level(pin, 0);
+  setState(true);
+}
+
+bool Led::isOn() const {
+  return state;
 }
