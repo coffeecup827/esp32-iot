@@ -1,25 +1,25 @@
-#include "ble/BluetoothLedPeripheral.h"
+#include "ble/BluetoothPeripheral.h"
 #include "esp_log.h"
 #include <cstdio>
 
 namespace {
-  constexpr const char* TAG = "BluetoothLedPeripheral";
+  constexpr const char* TAG = "BluetoothPeripheral";
   constexpr const char* SERVICE_UUID = "303e4d0a-820b-439b-9db4-83a1a63bd0a4"; //correct
   constexpr const char* DEVICE_ID_UUID = "303e4d0a-820b-439b-9db4-83a1a63bd0a7";
   constexpr const char* DEVICE_NAME_UUID = "303e4d0a-820b-439b-9db4-83a1a63bd0a8";
 }
 
-BluetoothLedPeripheral::BluetoothLedPeripheral(IBluetoothDeviceIdentity& deviceIdentity)
+BluetoothPeripheral::BluetoothPeripheral(IBluetoothDeviceIdentity& deviceIdentity)
   : deviceIdentity(deviceIdentity) {
 }
 
-void BluetoothLedPeripheral::setState(BluetoothConnectionState state) {
+void BluetoothPeripheral::setState(BluetoothConnectionState state) {
   if(stateHandler) {
     stateHandler(state);
   }
 }
 
-bool BluetoothLedPeripheral::configureAdvertising() {
+bool BluetoothPeripheral::configureAdvertising() {
   NimBLEAdvertising* advertiser = NimBLEDevice::getAdvertising();
   advertiser->addServiceUUID(SERVICE_UUID);
 
@@ -42,7 +42,7 @@ bool BluetoothLedPeripheral::configureAdvertising() {
   return true;
 }
 
-bool BluetoothLedPeripheral::start() {
+bool BluetoothPeripheral::start() {
   NimBLEDevice::init("");
   NimBLEDevice::setSecurityAuth(true, false, true);
   NimBLEDevice::setSecurityIOCap(BLE_HS_IO_NO_INPUT_OUTPUT);
@@ -75,12 +75,12 @@ bool BluetoothLedPeripheral::start() {
   return configureAdvertising();
 }
 
-void BluetoothLedPeripheral::onConnect(NimBLEServer*, NimBLEConnInfo& bleConnectionInfo) {
+void BluetoothPeripheral::onConnect(NimBLEServer*, NimBLEConnInfo& bleConnectionInfo) {
   setState(BluetoothConnectionState::CONNECTED_UNENCRYPTED);
   NimBLEDevice::startSecurity(bleConnectionInfo.getConnHandle());
 }
 
-void BluetoothLedPeripheral::onAuthenticationComplete(NimBLEConnInfo& bleConnectionInfo) {
+void BluetoothPeripheral::onAuthenticationComplete(NimBLEConnInfo& bleConnectionInfo) {
   isConnectionEncrypted = bleConnectionInfo.isEncrypted();
   
   if(isEncrypted()) {
@@ -90,7 +90,7 @@ void BluetoothLedPeripheral::onAuthenticationComplete(NimBLEConnInfo& bleConnect
   }
 }
 
-void BluetoothLedPeripheral::onDisconnect(NimBLEServer* bleServer, NimBLEConnInfo& bleConnectionInfo, int reason){
+void BluetoothPeripheral::onDisconnect(NimBLEServer* bleServer, NimBLEConnInfo& bleConnectionInfo, int reason){
   isConnectionEncrypted = false;
 
   setState(BluetoothConnectionState::DISCONNECTED);
@@ -101,7 +101,7 @@ void BluetoothLedPeripheral::onDisconnect(NimBLEServer* bleServer, NimBLEConnInf
   }
 }
 
-void BluetoothLedPeripheral::onWrite(NimBLECharacteristic* characteristic, NimBLEConnInfo&) {
+void BluetoothPeripheral::onWrite(NimBLECharacteristic* characteristic, NimBLEConnInfo&) {
   if(characteristic == deviceNameCharacteristic) {
     const std::string newName = characteristic->getValue();
     if (deviceIdentity.setDeviceName(newName)) {
@@ -112,14 +112,14 @@ void BluetoothLedPeripheral::onWrite(NimBLECharacteristic* characteristic, NimBL
   }
 }
 
-void BluetoothLedPeripheral::onRead(NimBLECharacteristic* characteristic, NimBLEConnInfo&) {
+void BluetoothPeripheral::onRead(NimBLECharacteristic* characteristic, NimBLEConnInfo&) {
 
 }
 
-bool BluetoothLedPeripheral::isEncrypted() const {
+bool BluetoothPeripheral::isEncrypted() const {
   return isConnectionEncrypted;
 }
 
-void BluetoothLedPeripheral::setConnectionStateHandler(ConnectionStateHandler handler) {
+void BluetoothPeripheral::setConnectionStateHandler(ConnectionStateHandler handler) {
   stateHandler = std::move(handler);
 }

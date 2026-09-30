@@ -6,7 +6,7 @@
 #include "IBluetoothPeripheral.h"
 #include "tasks/ILedStateObserver.h"
 
-class BluetoothLedPeripheral : public IBluetoothPeripheral,
+class BluetoothPeripheral : public IBluetoothPeripheral,
   public NimBLEServerCallbacks,
   public NimBLECharacteristicCallbacks
 {
@@ -30,7 +30,7 @@ class BluetoothLedPeripheral : public IBluetoothPeripheral,
     void onDisconnect(NimBLEServer* bleServer, NimBLEConnInfo& bleConnectionInfo, int reason) override;
 
   public:
-    BluetoothLedPeripheral(IBluetoothDeviceIdentity& deviceIdentity);
+    BluetoothPeripheral(IBluetoothDeviceIdentity& deviceIdentity);
 
     bool start() override;
     bool isEncrypted() const override;
