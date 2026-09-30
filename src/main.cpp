@@ -7,6 +7,7 @@
 #include "dispatcher/LedCommandDispatcher.h"
 #include "ble/BluetoothDeviceIdentity.h"
 #include "ble/BluetoothPeripheral.h"
+#include "ble/LedBluetoothService.h"
 
 namespace {
   constexpr const char* TAG = "Main";
@@ -30,10 +31,13 @@ extern "C" {
 
     static LedConsumerTask ledConsumer(ledCommandQueue, onBoardLed);
     static LedCommandDispatcher ledCommandDispatcher(ledCommandQueue);
+
+    // static LedBluetoothService ledBluetoothService(ledCommandDispatcher);
+
     static BluetoothDeviceIdentity bluetoothDeviceIdentity;
     static BluetoothPeripheral bluetoothPeripheral(bluetoothDeviceIdentity);
 
-    // ledConsumer.addObserver(&bluetoothPeripheral);
+    // ledConsumer.addObserver(&ledBluetoothService);
 
     bluetoothPeripheral.setConnectionStateHandler([](BluetoothConnectionState state) {
       switch (state) {

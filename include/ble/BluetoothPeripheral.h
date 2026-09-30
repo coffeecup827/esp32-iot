@@ -5,6 +5,7 @@
 #include "NimBLEDevice.h"
 #include "IBluetoothPeripheral.h"
 #include "tasks/ILedStateObserver.h"
+#include "IBluetoothService.h"
 
 class BluetoothPeripheral : public IBluetoothPeripheral,
   public NimBLEServerCallbacks,
@@ -16,6 +17,7 @@ class BluetoothPeripheral : public IBluetoothPeripheral,
     NimBLEServer* bleServer {nullptr};
     NimBLECharacteristic* deviceNameCharacteristic {nullptr};
     NimBLECharacteristic* deviceIdCharacteristic {nullptr};
+    std::vector<IBluetoothService*> bleServices;
 
     ConnectionStateHandler stateHandler {};
     bool isConnectionEncrypted {false};
@@ -30,7 +32,7 @@ class BluetoothPeripheral : public IBluetoothPeripheral,
     void onDisconnect(NimBLEServer* bleServer, NimBLEConnInfo& bleConnectionInfo, int reason) override;
 
   public:
-    BluetoothPeripheral(IBluetoothDeviceIdentity& deviceIdentity);
+    BluetoothPeripheral(IBluetoothDeviceIdentity& deviceIdentity, std::vector<IBluetoothService*> bleServices);
 
     bool start() override;
     bool isEncrypted() const override;

@@ -9,8 +9,8 @@ namespace {
   constexpr const char* DEVICE_NAME_UUID = "303e4d0a-820b-439b-9db4-83a1a63bd0a8";
 }
 
-BluetoothPeripheral::BluetoothPeripheral(IBluetoothDeviceIdentity& deviceIdentity)
-  : deviceIdentity(deviceIdentity) {
+BluetoothPeripheral::BluetoothPeripheral(IBluetoothDeviceIdentity& deviceIdentity, std::vector<IBluetoothService*> bleServices)
+  : deviceIdentity(deviceIdentity), bleServices(bleServices) {
 }
 
 void BluetoothPeripheral::setState(BluetoothConnectionState state) {
@@ -51,17 +51,21 @@ bool BluetoothPeripheral::start() {
   if(!bleServer) return false;
   bleServer->setCallbacks(this);
 
-  NimBLEService* ledBLEService = bleServer->createService(SERVICE_UUID);
-  if(!ledBLEService) return false;
+  NimBLEService* bleService = bleServer->createService(SERVICE_UUID);
+  if(!bleService) return false;
 
-  deviceNameCharacteristic = ledBLEService->createCharacteristic(
+  deviceNameCharacteristic = bleService->createCharacteristic(
     DEVICE_NAME_UUID,
     NIMBLE_PROPERTY::WRITE | NIMBLE_PROPERTY::WRITE_ENC | NIMBLE_PROPERTY::READ | NIMBLE_PROPERTY::READ_ENC
   );
-  deviceIdCharacteristic = ledBLEService->createCharacteristic(
+  deviceIdCharacteristic = bleService->createCharacteristic(
     DEVICE_ID_UUID,
     NIMBLE_PROPERTY::READ | NIMBLE_PROPERTY::READ_ENC
   );
+
+  for(IBluetoothService* bluetoothService : bleServices) {
+    bluetoothService->registerWith(bleService);
+  }
 
   if(!deviceNameCharacteristic || !deviceIdCharacteristic) {
     return false;
