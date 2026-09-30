@@ -8,7 +8,7 @@ namespace {
   constexpr const char* LED_COMMAND_UUID = "303e4d0a-820b-439b-9db4-83a1a63bd0a5";
   constexpr const char* LED_STATUS_UUID = "303e4d0a-820b-439b-9db4-83a1a63bd0a6";
   constexpr const char* DEVICE_ID_UUID = "303e4d0a-820b-439b-9db4-83a1a63bd0a7";
-  constexpr const char* DEVICE_NAME_UUID = "303e4d0a-820b-439b-9db4-83a1a63bd0a7";
+  constexpr const char* DEVICE_NAME_UUID = "303e4d0a-820b-439b-9db4-83a1a63bd0a8";
 }
 
 BluetoothLedPeripheral::BluetoothLedPeripheral(IBluetoothDeviceIdentity& deviceIdentity, LedCommandDispatcher& ledCommandDispatcher)
@@ -58,20 +58,19 @@ bool BluetoothLedPeripheral::start() {
   if(!ledBLEService) return false;
 
   ledCommandCharacteristic = ledBLEService->createCharacteristic(
-    LED_COMMAND_UUID, 
-    NIMBLE_PROPERTY::WRITE | NIMBLE_PROPERTY::WRITE_ENC
+    LED_COMMAND_UUID, NIMBLE_PROPERTY::WRITE_ENC
   );
   ledStatusCharacteristic = ledBLEService->createCharacteristic(
     LED_STATUS_UUID,
-    NIMBLE_PROPERTY::READ | NIMBLE_PROPERTY::READ_ENC | NIMBLE_PROPERTY::NOTIFY
+    NIMBLE_PROPERTY::READ_ENC | NIMBLE_PROPERTY::NOTIFY
   );
   deviceNameCharacteristic = ledBLEService->createCharacteristic(
     DEVICE_NAME_UUID,
-    NIMBLE_PROPERTY::WRITE | NIMBLE_PROPERTY::WRITE_ENC | NIMBLE_PROPERTY::READ
+    NIMBLE_PROPERTY::WRITE_ENC | NIMBLE_PROPERTY::READ
   );
   deviceIdCharacteristic = ledBLEService->createCharacteristic(
     DEVICE_ID_UUID,
-    NIMBLE_PROPERTY::READ
+    NIMBLE_PROPERTY::READ_ENC
   );
 
   if(!ledCommandCharacteristic || !ledStatusCharacteristic ||
@@ -85,8 +84,7 @@ bool BluetoothLedPeripheral::start() {
   ledStatusCharacteristic->setValue(static_cast<uint8_t>(0));
   deviceNameCharacteristic->setValue(deviceIdentity.getDeviceName());
   deviceIdCharacteristic->setValue(deviceIdentity.getDeviceId());
-  
-  ledBLEService->start();
+
   return configureAdvertising();
 }
 
@@ -141,14 +139,14 @@ void BluetoothLedPeripheral::onWrite(NimBLECharacteristic* characteristic, NimBL
   if(characteristic == deviceNameCharacteristic) {
     const std::string newName = characteristic->getValue();
     if (!deviceIdentity.setDeviceName(newName)) {
-      // why do this?
+      // why do change value on characteristic when renaming failed?
       deviceNameCharacteristic->setValue(deviceIdentity.getDeviceName());
     }
   }
 }
 
 void BluetoothLedPeripheral::onRead(NimBLECharacteristic* characteristic, NimBLEConnInfo&) {
-  // why only this characteristic?
+  // why are we setting on read?
   if(characteristic == deviceNameCharacteristic) {
     characteristic->setValue(deviceIdentity.getDeviceName());
   }
