@@ -31,16 +31,12 @@ bool LedBluetoothService::registerWith(NimBLEService* bleService) {
   return true;
 }
 
-void LedBluetoothService::notifyLedState(bool ledState) {
+void LedBluetoothService::onLedStateChanged(bool ledState) {
   if(!ledStatusCharacteristic) {
     return;
   }
   ledStatusCharacteristic->setValue(static_cast<uint8_t>(ledState ? 1 : 0));
   ledStatusCharacteristic->notify();
-}
-
-void LedBluetoothService::onLedStateChanged(bool ledState) {
-  notifyLedState(ledState);
 }
 
 void LedBluetoothService::onWrite(NimBLECharacteristic* characteristic, NimBLEConnInfo&) {

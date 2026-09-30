@@ -1,4 +1,5 @@
 #include "esp_log.h"
+#include <vector>
 #include "led/Led.h"
 #include "tasks/Queue.h"
 #include "messages/LedMessage.h"
@@ -32,12 +33,15 @@ extern "C" {
     static LedConsumerTask ledConsumer(ledCommandQueue, onBoardLed);
     static LedCommandDispatcher ledCommandDispatcher(ledCommandQueue);
 
-    // static LedBluetoothService ledBluetoothService(ledCommandDispatcher);
+    static LedBluetoothService ledBluetoothService(ledCommandDispatcher);
+
+    std::vector<IBluetoothService*> bleServices;
+    bleServices.push_back(&ledBluetoothService);
 
     static BluetoothDeviceIdentity bluetoothDeviceIdentity;
-    static BluetoothPeripheral bluetoothPeripheral(bluetoothDeviceIdentity);
+    static BluetoothPeripheral bluetoothPeripheral(bluetoothDeviceIdentity, bleServices);
 
-    // ledConsumer.addObserver(&ledBluetoothService);
+    ledConsumer.addObserver(&ledBluetoothService);
 
     bluetoothPeripheral.setConnectionStateHandler([](BluetoothConnectionState state) {
       switch (state) {

@@ -16,7 +16,6 @@ class LedBluetoothService : public IBluetoothService,
   public:
     LedBluetoothService(LedCommandDispatcher& ledCommandDispatcher);
     void onWrite(NimBLECharacteristic* characteristic, NimBLEConnInfo& bleConnectionInfo) override;
-    virtual void notifyLedState(bool ledState) = 0;
     void onLedStateChanged(bool ledState) override;
     bool registerWith(NimBLEService* service) override;
 };
