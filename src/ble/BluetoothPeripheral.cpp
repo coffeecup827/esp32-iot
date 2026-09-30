@@ -7,6 +7,7 @@ namespace {
   constexpr const char* SERVICE_UUID = "303e4d0a-820b-439b-9db4-83a1a63bd0a4"; //correct
   constexpr const char* DEVICE_ID_UUID = "303e4d0a-820b-439b-9db4-83a1a63bd0a7";
   constexpr const char* DEVICE_NAME_UUID = "303e4d0a-820b-439b-9db4-83a1a63bd0a8";
+  constexpr const int MAX_BONDS = 5;
 }
 
 BluetoothPeripheral::BluetoothPeripheral(IBluetoothDeviceIdentity& deviceIdentity, std::vector<IBluetoothService*> bleServices)
@@ -87,6 +88,10 @@ void BluetoothPeripheral::onConnect(NimBLEServer* server, NimBLEConnInfo& bleCon
   if(server->getConnectedCount() > 1) {
     server->disconnect(bleConnectionInfo);
     return;
+  }
+
+  if(NimBLEDevice::getNumBonds() >= MAX_BONDS && !NimBLEDevice::isBonded(bleConnectionInfo.getIdAddress())) {
+    NimBLEDevice::deleteBond(NimBLEDevice::getBondedAddress(0));
   }
   
   setState(BluetoothConnectionState::CONNECTED_UNENCRYPTED);
