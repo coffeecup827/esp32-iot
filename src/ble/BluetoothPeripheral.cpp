@@ -83,7 +83,12 @@ bool BluetoothPeripheral::start() {
   return configureAdvertising();
 }
 
-void BluetoothPeripheral::onConnect(NimBLEServer*, NimBLEConnInfo& bleConnectionInfo) {
+void BluetoothPeripheral::onConnect(NimBLEServer* server, NimBLEConnInfo& bleConnectionInfo) {
+  if(server->getConnectedCount() > 1) {
+    server->disconnect(bleConnectionInfo);
+    return;
+  }
+  
   setState(BluetoothConnectionState::CONNECTED_UNENCRYPTED);
   NimBLEDevice::startSecurity(bleConnectionInfo.getConnHandle());
 }
