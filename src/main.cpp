@@ -3,23 +3,58 @@
 #include "tasks/Queue.h"
 #include "messages/LedMessage.h"
 #include "tasks/LedConsumerTask.h"
-#include "tasks/LedBlinkPublisherTask.h"
+#include "nvs_flash.h"
+#include "dispatcher/LedCommandDispatcher.h"
+#include "ble/BluetoothDeviceIdentity.h"
+#include "ble/BluetoothLedPeripheral.h"
+
+namespace {
+  constexpr const char* TAG = "Main";
+}
 
 extern "C" {
   void app_main() {
+    esp_err_t nvsInitResult = nvs_flash_init();
+    if(nvsInitResult != ESP_ERR_NVS_NO_FREE_PAGES || nvsInitResult == ESP_ERR_NVS_NEW_VERSION_FOUND) {
+      ESP_ERROR_CHECK(nvs_flash_erase());
+      nvsInitResult = nvs_flash_init();
+    }
+    ESP_ERROR_CHECK(nvsInitResult);
+
     static Led onBoardLed(GPIO_NUM_8);
-
-    static Queue<LedMessage> ledCommandQueue(5);
-
+    static Queue<LedMessage> ledCommandQueue(8);
     if(!ledCommandQueue.isValid()) {
       ESP_LOGE("main", "Failed to create queue - halting startup");
       return;
     }
 
-    static LedBlinkPublisherTask blinkPublisher(ledCommandQueue, pdMS_TO_TICKS(500));
     static LedConsumerTask ledConsumer(ledCommandQueue, onBoardLed);
+    static LedCommandDispatcher ledCommandDispatcher(ledCommandQueue);
+    // why this initialisation is different?
+    static BluetoothDeviceIdentity bluetoothDeviceIdentity;
+    static BluetoothLedPeripheral bluetoothLedPeripheral(bluetoothDeviceIdentity, ledCommandDispatcher);
 
-    blinkPublisher.start("LedTrigger", 4096, tskIDLE_PRIORITY + 1);
+    ledConsumer.addObserver(&bluetoothLedPeripheral);
+
+    bluetoothLedPeripheral.setConnectionStateHandler([](BluetoothConnectionState state) {
+      switch (state) {
+          case BluetoothConnectionState::ADVERTISING: ESP_LOGI(TAG, "BLE Advertising"); break;
+          case BluetoothConnectionState::CONNECTED_UNENCRYPTED: ESP_LOGI(TAG, "BLE Connected (unencrypted)"); break;
+          case BluetoothConnectionState::ENCRYPTED: ESP_LOGI(TAG, "BLE Encrypted/Bonded"); break;
+          case BluetoothConnectionState::DISCONNECTED: ESP_LOGI(TAG, "BLE Disconnected"); break;
+        }
+      }
+    );
+
     ledConsumer.start("LedController", 4096, tskIDLE_PRIORITY + 1);
+
+    if(!bluetoothLedPeripheral.start()) {
+      ESP_LOGE(TAG, "BLE failed to start (continuing without BLE)");
+    }
+
+    ESP_LOGI(TAG, "BLE Ready: id=%s name=%s",
+      bluetoothDeviceIdentity.getDeviceId().c_str(),
+      bluetoothDeviceIdentity.getDeviceName().c_str()
+    );
   }
 }

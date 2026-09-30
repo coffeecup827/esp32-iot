@@ -8,6 +8,17 @@ namespace {
   constexpr const char* TAG = "BluetoothDeviceIdentity";
 }
 
+BluetoothDeviceIdentity::BluetoothDeviceIdentity() :
+ deviceId(deriveDeviceIdFromMac()), deviceName(loadDisplayNameFromNvs()) {
+  if(deviceName.empty()) {
+    if(saveDisplayNameToNvs("Light Control")) {
+      ESP_LOGI(TAG, "Default DeviceName Set");
+    } else {
+      ESP_LOGE(TAG, "Default DeviceName Set");
+    }
+  }
+}
+
 std::string BluetoothDeviceIdentity::deriveDeviceIdFromMac() {
   uint8_t mac[6] = {0};
   esp_read_mac(mac, ESP_MAC_BT);
@@ -58,17 +69,6 @@ bool BluetoothDeviceIdentity::saveDisplayNameToNvs(const std::string& deviceName
   nvs_close(storageHandle);
 
   return result == ESP_OK;
-}
-
-BluetoothDeviceIdentity::BluetoothDeviceIdentity() :
- deviceId(deriveDeviceIdFromMac()), deviceName(loadDisplayNameFromNvs()) {
-  if(deviceName.empty()) {
-    if(saveDisplayNameToNvs("Light Control")) {
-      ESP_LOGI(TAG, "Default DeviceName Set");
-    } else {
-      ESP_LOGE(TAG, "Default DeviceName Set");
-    }
-  }
 }
 
 const std::string& BluetoothDeviceIdentity::getDeviceId() const {
