@@ -21,6 +21,7 @@ class BluetoothPeripheral : public IBluetoothPeripheral,
 
     void setState(BluetoothConnectionState state);
     bool configureAdvertising();
+    bool startAdvertising();
 
     void onConnect(NimBLEServer* bleServer, NimBLEConnInfo& bleConnectionInfo) override;
     void onAuthenticationComplete(NimBLEConnInfo& bleConnectionInfo) override;

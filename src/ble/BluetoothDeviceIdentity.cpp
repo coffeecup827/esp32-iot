@@ -12,9 +12,10 @@ BluetoothDeviceIdentity::BluetoothDeviceIdentity() :
  deviceId(deriveDeviceIdFromMac()), deviceName(loadDisplayNameFromNvs()) {
   if(deviceName.empty()) {
     if(saveDisplayNameToNvs("Light Control")) {
+      deviceName = "Light Control";
       ESP_LOGI(TAG, "Default DeviceName Set");
     } else {
-      ESP_LOGE(TAG, "Default DeviceName Set");
+      ESP_LOGE(TAG, "Failed to save default device name");
     }
   }
 }

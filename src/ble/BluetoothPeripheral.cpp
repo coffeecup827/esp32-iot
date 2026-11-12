@@ -22,7 +22,10 @@ void BluetoothPeripheral::setState(BluetoothConnectionState state) {
 
 bool BluetoothPeripheral::configureAdvertising() {
   NimBLEAdvertising* advertiser = NimBLEDevice::getAdvertising();
-  advertiser->addServiceUUID(SERVICE_UUID);
+  if (!advertiser->addServiceUUID(SERVICE_UUID)) {
+    ESP_LOGE(TAG, "Failed to add advertised service UUID");
+    return false;
+  }
 
   std::string deviceId = deviceIdentity.getDeviceId();
   std::string manufacturerData;
@@ -35,10 +38,16 @@ bool BluetoothPeripheral::configureAdvertising() {
     std::sscanf(deviceId.c_str() + i * 2, "%2x", &b);
     manufacturerData.push_back(static_cast<char>(b));
   }
-  advertiser->setManufacturerData(manufacturerData);
+  if (!advertiser->setManufacturerData(manufacturerData)) {
+    ESP_LOGE(TAG, "Failed to set manufacturer data");
+    return false;
+  }
 
-  if(!advertiser->start()) return false;
+  return startAdvertising();
+}
 
+bool BluetoothPeripheral::startAdvertising() {
+  if(!NimBLEDevice::getAdvertising()->start()) return false;
   setState(BluetoothConnectionState::ADVERTISING);
   return true;
 }
@@ -113,7 +122,7 @@ void BluetoothPeripheral::onDisconnect(NimBLEServer* bleServer, NimBLEConnInfo& 
   setState(BluetoothConnectionState::DISCONNECTED);
 
   ESP_LOGI(TAG, "Disconnected reason=%d", reason);
-  if (!configureAdvertising()) {
+  if (!startAdvertising()) {
     ESP_LOGE(TAG, "Failed to resume advertising");
   }
 }
