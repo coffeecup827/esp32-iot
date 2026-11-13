@@ -81,11 +81,11 @@ const std::string& BluetoothDeviceIdentity::getDeviceName() const {
 
 bool BluetoothDeviceIdentity::setDeviceName(const std::string& name) {
   if(!isValidName(name)) {
-    ESP_LOGW(TAG, "Device Name Invalid: %s", name);
+    ESP_LOGW(TAG, "Device Name Invalid: %s", name.c_str());
     return false;
   }
   if(!saveDisplayNameToNvs(name)) {
-    ESP_LOGW(TAG, "Device Rename Failed At NVS: %s", name);
+    ESP_LOGW(TAG, "Device Rename Failed At NVS: %s", name.c_str());
     return false;
   }
   deviceName = name;

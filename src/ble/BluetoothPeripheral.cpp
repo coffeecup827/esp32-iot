@@ -130,11 +130,12 @@ void BluetoothPeripheral::onDisconnect(NimBLEServer* bleServer, NimBLEConnInfo& 
 void BluetoothPeripheral::onWrite(NimBLECharacteristic* characteristic, NimBLEConnInfo&) {
   if(characteristic == deviceNameCharacteristic) {
     const std::string newName = characteristic->getValue();
-    if (deviceIdentity.setDeviceName(newName)) {
-      deviceNameCharacteristic->setValue(deviceIdentity.getDeviceName());
-    } else {
+    if (!deviceIdentity.setDeviceName(newName)) {
       ESP_LOGE(TAG, "BLE Device Rename Failed");
     }
+    // Always republish the stored name: NimBLE keeps the written value, so without this a
+    // rejected name would be readable by the client as if it had been accepted.
+    deviceNameCharacteristic->setValue(deviceIdentity.getDeviceName());
   }
 }
 
